@@ -1,0 +1,73 @@
+{
+  "recorded_on": "2026-10-29",
+  "assets": [
+    {
+      "file": "assets/logo.svg",
+      "source": "https://worldflow-rbs.github.io/assets/logo.svg",
+      "sha256": "8a635480840a02d21967954fe37523be5df8c05c737f16a52713917cd8552670",
+      "bytes": 311308,
+      "source_repository": "https://github.com/worldflow-rbs/worldflow-rbs.github.io",
+      "source_tree_sha": "87618e34874ea6ed8dcc2afcd1f4b354986ace4f"
+    },
+    {
+      "file": "assets/architecture.png",
+      "source": "https://worldflow-rbs.github.io/assets/architecture-bkp.png",
+      "sha256": "40bbc380416e0cf480dbe54f195a5366af624d9508edee4cf0c419a7e061d3eb",
+      "bytes": 1732280,
+      "source_repository": "https://github.com/worldflow-rbs/worldflow-rbs.github.io",
+      "source_tree_sha": "87618e34874ea6ed8dcc2afcd1f4b354986ace4f"
+    },
+    {
+      "file": "assets/teaser.jpg",
+      "source": "https://worldflow-rbs.github.io/assets/flow-gallery-6x6-household.jpg",
+      "sha256": "b1099c83718e954fa3bbe515cccc395968604129c3e5c6db038d082cad10fa35",
+      "bytes": 335263,
+      "source_repository": "https://github.com/worldflow-rbs/worldflow-rbs.github.io",
+      "source_tree_sha": "87618e34874ea6ed8dcc2afcd1f4b354986ace4f"
+    },
+    {
+      "file": "assets/teaser.mp4",
+      "source": "https://worldflow-rbs.github.io/assets/flow-gallery-6x6-household.mp4",
+      "sha256": "92179531b1fe1effe60c879f27e82a4aa9b157a32bf6bbcbdb454d60b1b53ff9",
+      "bytes": 807993,
+      "source_repository": "https://github.com/worldflow-rbs/worldflow-rbs.github.io",
+      "source_tree_sha": "87618e34874ea6ed8dcc2afcd1f4b354986ace4f"
+    },
+    {
+      "file": "assets/teaser.gif",
+      "derived_from": "assets/teaser.mp4",
+      "transformation": "FFmpeg: preserve original 1920x1152 resolution, 8 FPS, 256-color palette, Bayer dithering at scale 3, infinite loop",
+      "sha256": "bc4d84c0a3c9437b028348124863503da1132016a13335a66131c48e238747f1",
+      "bytes": 2682247
+    },
+    {
+      "file": "docs/paper.pdf",
+      "source": "Author-provided WorldFlow paper PDF",
+      "description": "22 pages, including supplementary material",
+      "sha256": "f00ee6a19d3cc04d3d9630478e2039108afb9f912040ad234f385979ca56031c",
+      "bytes": 15222635
+    },
+    {
+      "file": "assets/roboscience-logo-black.png",
+      "source": "https://worldflow-rbs.github.io/assets/roboscience-logo-black.png",
+      "brand_homepage": "https://en.roboscience.co/",
+      "description": "Transparent dark RoboScience wordmark from the WorldFlow project page",
+      "sha256": "91b0e953fe60a3c3eb06642eab64f34e186c89b56212aed7ae32c104ac0b9f6a",
+      "bytes": 239290
+    },
+    {
+      "file": "assets/paper-badge.svg",
+      "source": "https://img.shields.io/badge/arXiv-Paper-b31b1b?style=flat&logo=arxiv&logoColor=white&labelColor=555555",
+      "description": "Gray and red arXiv / Paper badge with white arXiv logomark",
+      "sha256": "bc9d1d21444e6bc174cb1d76a52dc3f3b3fbf96695940be3f0c97909b8592d2a",
+      "bytes": 2824
+    },
+    {
+      "file": "assets/project-page.svg",
+      "source": "https://img.shields.io/badge/Project-Page-1f6feb?style=flat&logo=googlechrome&logoColor=white&labelColor=555555",
+      "description": "Gray and blue Project / Page badge with white browser icon",
+      "sha256": "1f5f0b2eb7e1b1d72f7af4a87b81a5935f419aa562c702488250f004768b26ed",
+      "bytes": 2096
+    }
+  ]
+}

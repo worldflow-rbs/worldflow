@@ -1,0 +1,38 @@
+# Python and local environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+
+# Editor and operating-system files
+.DS_Store
+.vscode/
+.idea/
+*.swp
+
+# Private credentials
+*.pem
+*.key
+credentials*.json
+token*.json
+
+# Runtime artifacts (the implementation is pending)
+checkpoints/
+weights/
+data/
+datasets/
+outputs/
+runs/
+logs/
+wandb/
+*.ckpt
+*.pt
+*.pth
+*.safetensors
+
+# Local authoring and review files
+tmp/
+.cache/
