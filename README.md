@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <a href="docs/paper.pdf"><img src="assets/paper-badge.svg" width="136" height="28" alt="arXiv Paper"></a>
+  <a href="https://arxiv.org/pdf/2610.39278"><img src="assets/paper-badge.svg" width="136" height="28" alt="arXiv Paper"></a>
   &nbsp;
   <a href="https://worldflow-rbs.github.io/"><img src="assets/project-page.svg" width="144" height="28" alt="Project Page"></a>
 </p>
@@ -53,7 +53,7 @@ Official repository for **WorldFlow**, a generative world model that jointly pre
 
 WorldFlow extends the Cosmos-Nano framework with a generative 3D flow modality. The pretrained reasoner processes language, while the video VAE encodes the observed image. The generator jointly predicts future video latents and frame-to-frame 3D displacements at the query points. Rescaling and accumulating those displacements recovers metric trajectories in the **initial camera coordinate system**.
 
-The predicted flow is an explicit model output; no separate tracking stage is required to recover it from the generated video. See Section 3 of the [paper](docs/paper.pdf) for the representation, objectives, and model details.
+The predicted flow is an explicit model output; no separate tracking stage is required to recover it from the generated video. See Section 3 of the [paper](https://arxiv.org/pdf/2610.39278) for the representation, objectives, and model details.
 
 ## Results
 
@@ -84,7 +84,7 @@ We test the predicted object trajectories as motion plans in a shared grasping, 
 
 Only the flow predictor changes between methods; paired trials use matched initial layouts, identical grasp results, and the same planning and control settings. Flow prediction and full robot execution are evaluated separately.
 
-See Section 4 of the [paper](docs/paper.pdf) for the complete baseline comparisons, ablations, and evaluation protocol.
+See Section 4 of the [paper](https://arxiv.org/pdf/2610.39278) for the complete baseline comparisons, ablations, and evaluation protocol.
 
 ## Release Plan
 
@@ -102,16 +102,16 @@ Release links and executable instructions will be added when the corresponding a
 If you find this work useful, please cite:
 
 ```bibtex
-@misc{lu2026worldflow,
-  title        = {WorldFlow: Joint Video and 3D Motion Prediction via Large-Scale Pretraining},
-  author       = {Yuhao Lu and Jiongxu Chen and Hexiang Wei and Jiajin Wu and Juelin Li and Mingjian Liang and Fan Yang and Zhuowei Liang and Zihao Liu and Zhennan Wang and Sheng Wang and Lin Shao},
-  year         = {2026},
-  howpublished = {Preprint},
-  url          = {https://worldflow-rbs.github.io/}
+@misc{lu2026worldflowjointvideo3d,
+  title={WorldFlow: Joint Video and 3D Motion Prediction via Large-Scale Pretraining},
+  author={Yuhao Lu and Jiongxu Chen and Hexiang Wei and Jiajin Wu and Juelin Li and Mingjian Liang and Fan Yang and Zhuowei Liang and Zihao Liu and Zhennan Wang and Sheng Wang and Lin Shao},
+  year={2026},
+  eprint={2610.39278},
+  archivePrefix={arXiv},
+  primaryClass={cs.CV},
+  url={https://arxiv.org/abs/2610.39278},
 }
 ```
-
-An arXiv identifier will be added once available.
 
 ## Acknowledgments and Licensing
 
