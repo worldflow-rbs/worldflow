@@ -2,21 +2,18 @@
 
 from pathlib import Path
 
+from ..weights import inference_model_dir, validate_shared_assets
+
 
 def validate_bundle(checkpoint: Path) -> None:
-    for resource in (
-        "model/model.safetensors.index.json",
-        "tokenizer/tokenizer.json",
-        "tokenizer/tokenizer_config.json",
-        "Wan2.2_VAE.pth",
-    ):
-        if not (checkpoint / resource).is_file():
-            raise FileNotFoundError(f"Missing {checkpoint / resource}. See checkpoint preparation in the README.")
+    validate_shared_assets(checkpoint)
+    inference_model_dir(checkpoint)
 
 
 def load_model(checkpoint: Path):
     checkpoint = Path(checkpoint)
-    validate_bundle(checkpoint)
+    validate_shared_assets(checkpoint)
+    model_dir = inference_model_dir(checkpoint)
     import torch
     from transformers import AutoTokenizer
 
@@ -37,6 +34,6 @@ def load_model(checkpoint: Path):
     network = network.to(dtype=torch.bfloat16).to_empty(device=device)
     # Rotary frequencies are generated values, so they are absent from the EMA index.
     network.language_model.model.rotary_emb.init_weights(buffer_device=device)
-    load_weights(network, checkpoint / "model")
+    load_weights(network, model_dir)
     vae = load_vae(checkpoint / "Wan2.2_VAE.pth", device=device)
     return JointSampler(network, vae, tokenizer).eval()

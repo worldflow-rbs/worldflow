@@ -50,31 +50,30 @@ python -m pip install torch==2.8.0 --index-url https://download.pytorch.org/whl/
 python -m pip install .
 ```
 
-Point the CLI at a prepared **WorldFlow Nano EMA inference bundle**. The package includes a synthetic tabletop image, a language instruction, and 64 3D query points, so the checkpoint is the only required argument.
+Set the path to your **WorldFlow Nano weights directory**. The package includes a tabletop image, a language instruction and 64 3D query points, so this path is the only required argument.
 
 ```bash
-worldflow --checkpoint /path/to/worldflow-nano
+WORLDFLOW_WEIGHTS=/path/to/worldflow-nano
+worldflow --checkpoint "$WORLDFLOW_WEIGHTS"
 ```
 
 The default run writes `outputs/block/video.mp4` (49 frames at 480 × 288), `motion.npz` (64 metric 3D trajectories), and `prediction.json` (sampling settings). Each run takes a new output directory. To use another scene, pass its manifest and a destination.
 
 ```bash
-worldflow --checkpoint /path/to/worldflow-nano --input my_scene/scene.json --output outputs/my_scene
+worldflow --checkpoint "$WORLDFLOW_WEIGHTS" --input my_scene/scene.json --output outputs/my_scene
 ```
 
 ### Prepare a checkpoint
 
-The supported model is the paper's **joint WorldFlow Nano, EMA iteration 51100**, with the SPV1 prompt and per-domain motion scales. Public weight downloads are pending. If you already have the original training checkpoint and auxiliary weights, prepare a self-contained inference bundle once.
+The supported model is the paper's **joint WorldFlow Nano, EMA iteration 51100**, with the SPV1 prompt and per-domain motion scales. Public weight downloads are pending. A prepared directory contains the active generator at `models/stage2/`, the tokenizer at `tokenizer/`, and `Wan2.2_VAE.pth`. Older inference bundles with the generator at `model/` also work.
+
+To convert an original checkpoint, place its iteration directory at `imports/stage2/iter_000051100/` beneath the same weights directory, alongside the tokenizer and VAE. Run the converter once.
 
 ```bash
-worldflow-pack \
-  --dcp /path/to/iter_000051100 \
-  --tokenizer /path/to/Cosmos3-Nano \
-  --vae /path/to/Wan2.2_VAE.pth \
-  --output /path/to/worldflow-nano
+worldflow-pack --checkpoint "$WORLDFLOW_WEIGHTS" --iteration 51100
 ```
 
-The converter reads the EMA network tensors from the model DCP shards and writes sharded safetensors, a local tokenizer, and the Wan 2.2 video autoencoder. Allow about 60 GiB for the output. Move the resulting directory as a unit. Inference loads all model assets locally and can run offline after installation.
+The converter writes sharded safetensors and activates the model under `models/stage2/`. Allow about 60 GiB for the export. Inference reads the model, tokenizer and VAE locally and can run offline after installation.
 
 See the [input and output formats](docs/inference.md) and [bundled example](src/worldflow/examples/block/README.md).
 

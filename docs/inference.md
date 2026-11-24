@@ -45,7 +45,8 @@ The preset supplies the origin, actor, camera view and scene to the SPV1 prompt 
 ## Run and inspect a prediction
 
 ```bash
-worldflow --checkpoint /path/to/worldflow-nano \
+WORLDFLOW_WEIGHTS=/path/to/worldflow-nano
+worldflow --checkpoint "$WORLDFLOW_WEIGHTS" \
   --input my_scene/scene.json --output outputs/my_scene \
   --steps 40 --guidance 2.0 --shift 5.0 --seed 42
 ```
@@ -78,16 +79,24 @@ The network predicts frame-to-frame motion. The pipeline applies the preset's me
 
 ```text
 worldflow-nano/
-├── model/
+├── models/stage2/
 │   ├── model.safetensors.index.json
-│   └── model-00001-of-00030.safetensors   (and the remaining shards)
+│   └── model-00001-of-00030.safetensors   (plus the other shards)
 ├── tokenizer/
 │   ├── tokenizer.json
 │   └── tokenizer_config.json              (plus the source tokenizer's vocabulary/template files)
 └── Wan2.2_VAE.pth
 ```
 
-Keep the original DCP and both auxiliary inputs until the converted bundle has been verified. The package reads the local tokenizer, checks generator tensor names and shapes, and loads the VAE from the same bundle. DCP conversion is intended for trusted training checkpoints.
+The original standalone layout with `model/` in place of `models/stage2/` is also supported. The package checks the generator tensor names and shapes and loads the tokenizer and VAE from the weights root.
+
+For a trusted original DCP, place the model shards and their `.metadata` at `imports/stage2/iter_000051100/model/` inside the weights directory. Include the tokenizer and VAE shown above, then run
+
+```bash
+worldflow-pack --checkpoint "$WORLDFLOW_WEIGHTS" --stage 2 --source import --iteration 51100
+```
+
+With only `--checkpoint`, the converter selects the latest complete numbered iteration. It writes the generator to `exports/stage2/` and activates it using a relative link at `models/stage2`. To relocate the converted weights, move `models/`, `exports/`, `tokenizer/` and the VAE together.
 
 For the full setup and bundled demo command, see the [repository README](../README.md).
 

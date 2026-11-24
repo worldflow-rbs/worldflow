@@ -8,6 +8,8 @@ import shutil
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+from .weights import publish_ema
+
 TOKENIZER_FILES = (
     "tokenizer.json",
     "tokenizer_config.json",
@@ -25,7 +27,9 @@ def _export_ema(dcp_dir: Path, destination: Path) -> None:
     import torch.distributed.checkpoint as dcp
     from safetensors.torch import save_file
 
-    reader = dcp.FileSystemReader(dcp_dir)
+    from .dcp import dcp_reader
+
+    reader = dcp_reader(dcp_dir)
     tensors = reader.read_metadata().state_dict_metadata
     keys = sorted(key for key in tensors if key.startswith("net_ema."))
     if "net_ema.llm2objectflow.weight" not in keys:
@@ -85,12 +89,22 @@ def prepare_bundle(dcp_path: Path, tokenizer: Path, vae: Path, output: Path) -> 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--dcp", required=True, type=Path, help="Trusted WorldFlow iteration or model directory")
-    parser.add_argument("--tokenizer", required=True, type=Path, help="Local Cosmos3-Nano tokenizer directory")
-    parser.add_argument("--vae", required=True, type=Path, help="Local Wan2.2_VAE.pth file")
-    parser.add_argument("--output", required=True, type=Path, help="New inference bundle directory")
+    parser.add_argument("--checkpoint", type=Path, help="Weights root containing tokenizer, VAE and imported DCPs")
+    parser.add_argument("--stage", choices=(2,), type=int, default=2, help="WorldFlow Nano paper stage (default: 2)")
+    parser.add_argument("--source", choices=("import",), help="Read the DCP from imports/stage2 (default: import)")
+    parser.add_argument("--iteration", type=int, help="Select an iteration (default: latest complete model)")
+    for name in ("dcp", "tokenizer", "vae", "output"):
+        parser.add_argument(f"--{name}", type=Path, help=argparse.SUPPRESS)
     args = parser.parse_args()
-    prepare_bundle(args.dcp, args.tokenizer, args.vae, args.output)
+    legacy = args.dcp, args.tokenizer, args.vae, args.output
+    if args.checkpoint is None:
+        if not all(legacy) or args.iteration is not None or args.source is not None:
+            parser.error("Supply --checkpoint with the shared weights directory")
+        prepare_bundle(*legacy)
+        return
+    if any(legacy):
+        parser.error("--checkpoint takes the shared directory containing all weights")
+    publish_ema(args.checkpoint, args.iteration, _export_ema)
 
 
 if __name__ == "__main__":
