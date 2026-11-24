@@ -19,11 +19,11 @@ venv/
 credentials*.json
 token*.json
 
-# Runtime artifacts (the implementation is pending)
+# Model bundles, inference results and build artifacts
 checkpoints/
 weights/
-data/
-datasets/
+/data/
+/datasets/
 outputs/
 runs/
 logs/
@@ -32,6 +32,10 @@ wandb/
 *.pt
 *.pth
 *.safetensors
+*.distcp
+dist/
+build/
+*.egg-info/
 
 # Local authoring and review files
 tmp/

@@ -1,0 +1,6 @@
+{
+  "image": "frame.png",
+  "queries": "queries.npz",
+  "instruction": "Slide the blue block to the right until it covers the green circle on the table.",
+  "source": "sim7"
+}

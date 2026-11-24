@@ -1,0 +1,36 @@
+WorldFlow inference distribution
+
+The WorldFlow inference code and the original synthetic block example use
+OpenMDW-1.1. See LICENSE for the agreement. The paper, existing project media,
+and separately distributed model weights retain their respective terms.
+
+NVIDIA Cosmos Framework
+Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES.
+https://github.com/NVIDIA/cosmos-framework
+The model, sequence packing, sampling, and video tokenizer components are
+adapted from Cosmos Framework for local, single-device WorldFlow inference.
+The Cosmos material is provided under OpenMDW-1.1.
+
+Hugging Face Transformers / Qwen
+https://github.com/huggingface/transformers
+Cosmos Qwen3-VL code incorporates work from Transformers under Apache-2.0.
+Copyright 2018- The Hugging Face team. All rights reserved.
+Copyright 2024 The Qwen team, Alibaba Group and the HuggingFace Inc. team.
+Copyright 2025 The Qwen team, Alibaba Group and the HuggingFace Inc. team.
+Copyright 2025 The Qwen Team and The HuggingFace Inc. team.
+Copyright 2025 HuggingFace Inc. team.
+
+UniPC sampler and Wan flow scheduler
+https://github.com/huggingface/diffusers
+https://github.com/Wan-Video/Wan2.2
+The flow UniPC implementation incorporates work licensed under Apache-2.0.
+Copyright 2024 TSAIL Team and The HuggingFace Team. All rights reserved.
+Copyright 2024-2025 The Alibaba Wan Team Authors. All rights reserved.
+
+Wan 2.2 video autoencoder
+https://github.com/Wan-Video/Wan2.2/blob/main/wan/modules/vae2_2.py
+The video autoencoder incorporates the Wan 2.2 architecture and code under
+Apache-2.0, as adapted in Cosmos Framework and WorldFlow.
+Copyright 2024-2025 The Alibaba Wan Team Authors. All rights reserved.
+
+See LICENSES/Apache-2.0.txt for the Apache License, Version 2.0.

@@ -35,7 +35,48 @@ Official repository for **WorldFlow**, a generative world model that jointly pre
 
 ## News
 
+- The WorldFlow Nano inference package now includes a local checkpoint loader, a single-image example, and joint video and 3D trajectory generation.
 - **2026-10-29:** Initial repository prepared with the paper, project overview, and visual assets.
+
+## Run inference
+
+The reference environment uses Linux, Python 3.10, PyTorch 2.8.0 with CUDA 12.8, and an 80 GB H800. Inference requires a CUDA GPU with BF16 support. From the repository root, create an environment and install the package.
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install torch==2.8.0 --index-url https://download.pytorch.org/whl/cu128
+python -m pip install .
+```
+
+Point the CLI at a prepared **WorldFlow Nano EMA inference bundle**. The package includes a synthetic tabletop image, a language instruction, and 64 3D query points, so the checkpoint is the only required argument.
+
+```bash
+worldflow --checkpoint /path/to/worldflow-nano
+```
+
+The default run writes `outputs/block/video.mp4` (49 frames at 480 × 288), `motion.npz` (64 metric 3D trajectories), and `prediction.json` (sampling settings). Each run takes a new output directory. To use another scene, pass its manifest and a destination.
+
+```bash
+worldflow --checkpoint /path/to/worldflow-nano --input my_scene/scene.json --output outputs/my_scene
+```
+
+### Prepare a checkpoint
+
+The supported model is the paper's **joint WorldFlow Nano, EMA iteration 51100**, with the SPV1 prompt and per-domain motion scales. Public weight downloads are pending. If you already have the original training checkpoint and auxiliary weights, prepare a self-contained inference bundle once.
+
+```bash
+worldflow-pack \
+  --dcp /path/to/iter_000051100 \
+  --tokenizer /path/to/Cosmos3-Nano \
+  --vae /path/to/Wan2.2_VAE.pth \
+  --output /path/to/worldflow-nano
+```
+
+The converter reads the EMA network tensors from the model DCP shards and writes sharded safetensors, a local tokenizer, and the Wan 2.2 video autoencoder. Allow about 60 GiB for the output. Move the resulting directory as a unit. Inference loads all model assets locally and can run offline after installation.
+
+See the [input and output formats](docs/inference.md) and [bundled example](src/worldflow/examples/block/README.md).
 
 ## Highlights
 
@@ -89,13 +130,13 @@ See Section 4 of the [paper](docs/paper.pdf) for the complete baseline compariso
 ## Release Plan
 
 - [x] Paper, project introduction, and visual assets
-- [ ] Model implementation and inference examples
+- [x] Model implementation and inference examples
 - [ ] Model checkpoints and download instructions
 - [ ] Training code and reproducible configurations
 - [ ] Data preparation tools and WorldFlowBench evaluation tools
 - [ ] Dataset and benchmark download instructions
 
-Release links and executable instructions will be added when the corresponding artifacts become available.
+Weight download links and training instructions will follow in their respective releases.
 
 ## Citation
 
@@ -117,4 +158,4 @@ An arXiv identifier will be added once available.
 
 WorldFlow builds on [NVIDIA Cosmos](https://github.com/NVIDIA/cosmos) and [Cosmos Framework](https://github.com/NVIDIA/cosmos-framework). We thank the developers and dataset contributors supporting this research.
 
-Third-party code, pretrained models, and datasets retain their respective licenses and access conditions. Licenses for the upcoming WorldFlow code, checkpoints, and data releases will be announced with those releases. This initial repository does not grant a new license for third-party materials.
+The WorldFlow inference code and original synthetic example use OpenMDW-1.1. Embedded third-party components retain their respective notices and licenses. The paper, project media, weights, and datasets have separate terms. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
