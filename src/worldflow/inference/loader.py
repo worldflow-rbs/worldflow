@@ -20,10 +20,10 @@ def load_model(checkpoint: Path):
     import torch
     from transformers import AutoTokenizer
 
-    from worldflow.weights import load_weights
-    from .network import WorldFlowNetwork
+    from ..models.network import WorldFlowNetwork
+    from ..models.vae import load_vae
     from .sampling import JointSampler
-    from .vae import load_vae
+    from .weights import load_weights
 
     if not torch.cuda.is_available() or not torch.cuda.is_bf16_supported():
         raise RuntimeError("WorldFlow Nano requires a CUDA GPU with bfloat16 support")

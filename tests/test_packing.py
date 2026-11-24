@@ -4,7 +4,7 @@ import unittest
 
 import torch
 
-from worldflow.backend.packing import pack_joint
+from worldflow.models.packing import pack_joint
 
 
 class JointPackingTests(unittest.TestCase):

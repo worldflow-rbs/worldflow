@@ -8,7 +8,7 @@ import numpy as np
 import torch
 from torch import nn
 
-from .packing import pack_joint
+from ..models.packing import pack_joint
 from .scheduler import FlowUniPCMultistepScheduler
 
 

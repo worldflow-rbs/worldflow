@@ -89,7 +89,7 @@ def predict(
     prompt = format_prompt(instruction, source)
     xyz, flat_pixels, selected = _select_points(rgb, points_xyz, pixels_uv)
 
-    from .backend import load_model
+    from .loader import load_model
 
     model = load_model(Path(checkpoint))
     with torch.inference_mode():

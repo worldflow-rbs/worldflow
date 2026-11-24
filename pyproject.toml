@@ -22,7 +22,7 @@ dependencies = [
 ]
 
 [project.scripts]
-worldflow = "worldflow.cli:main"
+worldflow = "worldflow.inference.cli:main"
 worldflow-pack = "worldflow.pack:main"
 
 [tool.setuptools.packages.find]

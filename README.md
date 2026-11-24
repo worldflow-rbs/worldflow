@@ -78,6 +78,11 @@ The converter reads the EMA network tensors from the model DCP shards and writes
 
 See the [input and output formats](docs/inference.md) and [bundled example](src/worldflow/examples/block/README.md).
 
+### Source layout
+
+- [Model definitions](src/worldflow/models/) include the [WorldFlow network](src/worldflow/models/network.py), its transformer, query-point geometry encoder, and Wan video autoencoder.
+- The [inference pipeline](src/worldflow/inference/pipeline.py) prepares the image and query points, runs joint video and motion sampling, and converts predicted displacements to meters.
+
 ## Highlights
 
 - **Joint video and 3D motion generation.** A unified Mixture-of-Transformers (MoT) backbone jointly denoises video latents and continuous 3D displacement tokens with shared multimodal attention.

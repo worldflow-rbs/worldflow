@@ -11,10 +11,10 @@ import torch
 from torch import nn
 from torch.distributed import checkpoint as dcp
 
-from worldflow.cli import DEFAULT_SCENE, read_scene, write_prediction
+from worldflow.inference.cli import DEFAULT_SCENE, read_scene, write_prediction
+from worldflow.inference.pipeline import _select_points
+from worldflow.inference.weights import load_weights
 from worldflow.pack import _export_ema
-from worldflow.pipeline import _select_points
-from worldflow.weights import load_weights
 
 
 class InferenceTests(unittest.TestCase):

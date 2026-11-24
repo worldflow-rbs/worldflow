@@ -7,10 +7,10 @@ import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from .backend import validate_bundle
+from .loader import validate_bundle
 from .presets import DOMAIN_SCALES, SOURCE_DOMAINS
 
-DEFAULT_SCENE = Path(__file__).parent / "examples" / "block" / "scene.json"
+DEFAULT_SCENE = Path(__file__).resolve().parents[1] / "examples" / "block" / "scene.json"
 
 
 def read_scene(manifest: Path):
