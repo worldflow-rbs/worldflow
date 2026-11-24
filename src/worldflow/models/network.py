@@ -36,6 +36,23 @@ class WorldFlowNetwork(nn.Module):
         self.register_buffer("objectflow_point_pe_abs_scale_buf", torch.tensor(2.0))
         self.register_buffer("objectflow_point_pe_rel_scale_buf", torch.tensor(0.3))
 
+    @torch.no_grad()
+    def initialize_objectflow(self, *, scale=0.0155919):
+        """Initialize the materialized WorldFlow parameters when importing a video backbone."""
+        std = 1.0 / math.sqrt(self.objectflow_dim)
+        nn.init.trunc_normal_(self.objectflow2llm.weight, std=std, a=-3 * std, b=3 * std)
+        nn.init.zeros_(self.objectflow2llm.bias)
+        nn.init.zeros_(self.llm2objectflow.weight)
+        nn.init.zeros_(self.llm2objectflow.bias)
+        std = 1.0 / math.sqrt(self.hidden_size)
+        nn.init.trunc_normal_(self.objectflow_modality_embed, std=std, a=-3 * std, b=3 * std)
+        for layer in self.objectflow_point_pe.modules():
+            if isinstance(layer, nn.Linear):
+                layer.reset_parameters()
+        self.objectflow_scale_buf.fill_(scale)
+        self.objectflow_point_pe_abs_scale_buf.fill_(self.objectflow_point_pe.abs_scale)
+        self.objectflow_point_pe_rel_scale_buf.fill_(self.objectflow_point_pe.rel_scale)
+
     def forward(self, packed_seq):
         if packed_seq.attn_modes != ["causal", "full"] or len(packed_seq.sample_lens) != 1:
             raise ValueError("Expected one sample with a causal text prefix and joint video/flow tokens")

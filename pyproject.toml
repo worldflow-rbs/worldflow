@@ -21,9 +21,16 @@ dependencies = [
     "einops>=0.8,<1",
 ]
 
+[project.optional-dependencies]
+training = ["numpy==1.26.4"]
+
 [project.scripts]
 worldflow = "worldflow.inference.cli:main"
 worldflow-pack = "worldflow.pack:main"
+worldflow-init = "worldflow.training.initialize:main"
+worldflow-prepare = "worldflow.data.prepare:main"
+worldflow-train = "worldflow.training.cli:main"
+worldflow-evaluate = "worldflow.evaluation.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

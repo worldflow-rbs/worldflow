@@ -50,37 +50,41 @@ python -m pip install torch==2.8.0 --index-url https://download.pytorch.org/whl/
 python -m pip install .
 ```
 
-Set the path to your **WorldFlow Nano weights directory**. The package includes a tabletop image, a language instruction and 64 3D query points, so this path is the only required argument.
+Set one weights directory for inference, training, resume, export and evaluation. For prediction it contains the WorldFlow Nano EMA, tokenizer and video VAE. The package includes a synthetic tabletop image, instruction and 64 query points, so the weights directory is the only required argument.
 
 ```bash
-WORLDFLOW_WEIGHTS=/path/to/worldflow-nano
-worldflow --checkpoint "$WORLDFLOW_WEIGHTS"
+export WEIGHTS="$PWD/checkpoints/worldflow-nano"
+worldflow --checkpoint "$WEIGHTS"
 ```
 
 The default run writes `outputs/block/video.mp4` (49 frames at 480 × 288), `motion.npz` (64 metric 3D trajectories), and `prediction.json` (sampling settings). Each run takes a new output directory. To use another scene, pass its manifest and a destination.
 
 ```bash
-worldflow --checkpoint "$WORLDFLOW_WEIGHTS" --input my_scene/scene.json --output outputs/my_scene
+worldflow --checkpoint "$WEIGHTS" --input my_scene/scene.json --output outputs/my_scene
 ```
 
 ### Prepare a checkpoint
 
-The supported model is the paper's **joint WorldFlow Nano, EMA iteration 51100**, with the SPV1 prompt and per-domain motion scales. Public weight downloads are pending. A prepared directory contains the active generator at `models/stage2/`, the tokenizer at `tokenizer/`, and `Wan2.2_VAE.pth`. Older inference bundles with the generator at `model/` also work.
-
-To convert an original checkpoint, place its iteration directory at `imports/stage2/iter_000051100/` beneath the same weights directory, alongside the tokenizer and VAE. Run the converter once.
+The paper model is **WorldFlow Nano, EMA iteration 51100**, with the SPV1 prompt and per-domain motion scales. Public weight downloads are pending. If you have the original DCP, place its iteration in `$WEIGHTS/imports/stage2/`, the tokenizer in `$WEIGHTS/tokenizer/` and the VAE at `$WEIGHTS/Wan2.2_VAE.pth`. Convert once.
 
 ```bash
-worldflow-pack --checkpoint "$WORLDFLOW_WEIGHTS" --iteration 51100
+worldflow-pack --checkpoint "$WEIGHTS" --stage 2 --source import --iteration 51100
 ```
 
-The converter writes sharded safetensors and activates the model under `models/stage2/`. Allow about 60 GiB for the export. Inference reads the model, tokenizer and VAE locally and can run offline after installation.
+The converter writes sharded safetensors and selects the exported model for inference. The tokenizer and VAE are shared across stages. A single-stage inference package occupies about 60 GiB and can run offline after installation. See the [weights directory layout](docs/weights.md).
 
 See the [input and output formats](docs/inference.md) and [bundled example](src/worldflow/examples/block/README.md).
 
-### Source layout
+## Train and evaluate
+
+The [training guide](docs/training.md) covers Cosmos3-Nano initialization, the SpatialCog warm-up, mixed-source training, distributed checkpoint resume, and EMA export to the inference CLI. Use the [data guide](docs/data.md) to prepare training manifests and the [evaluation guide](docs/evaluation.md) to score held-out trajectories.
+
+## Source layout
 
 - [Model definitions](src/worldflow/models/) include the [WorldFlow network](src/worldflow/models/network.py), its transformer, query-point geometry encoder, and Wan video autoencoder.
 - The [inference pipeline](src/worldflow/inference/pipeline.py) prepares the image and query points, runs joint video and motion sampling, and converts predicted displacements to meters.
+- [Training](src/worldflow/training/) contains the joint video and motion loss, curriculum, distributed optimizer loop and checkpoint handling.
+- [Data](src/worldflow/data/) converts native source assets and reads indexed examples. [Evaluation](src/worldflow/evaluation/) computes trajectory metrics on held-out clips.
 
 ## Highlights
 
@@ -136,11 +140,11 @@ See Section 4 of the [paper](docs/paper.pdf) for the complete baseline compariso
 - [x] Paper, project introduction, and visual assets
 - [x] Model implementation and inference examples
 - [ ] Model checkpoints and download instructions
-- [ ] Training code and reproducible configurations
-- [ ] Data preparation tools and WorldFlowBench evaluation tools
+- [x] Two-stage training, distributed checkpoints and EMA export
+- [x] Data preparation and held-out trajectory scoring
 - [ ] Dataset and benchmark download instructions
 
-Weight download links and training instructions will follow in their respective releases.
+Public download links for the model weights and datasets are pending.
 
 ## Citation
 
@@ -162,4 +166,4 @@ An arXiv identifier will be added once available.
 
 WorldFlow builds on [NVIDIA Cosmos](https://github.com/NVIDIA/cosmos) and [Cosmos Framework](https://github.com/NVIDIA/cosmos-framework). We thank the developers and dataset contributors supporting this research.
 
-The WorldFlow inference code and original synthetic example use OpenMDW-1.1. Embedded third-party components retain their respective notices and licenses. The paper, project media, weights, and datasets have separate terms. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
+The WorldFlow code and original synthetic example use OpenMDW-1.1. Embedded third-party components retain their respective notices and licenses. The paper, project media, weights, and datasets have separate terms. See [LICENSE](LICENSE) and [NOTICE](NOTICE).

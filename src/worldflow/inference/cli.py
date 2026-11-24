@@ -7,8 +7,8 @@ import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from .loader import validate_bundle
-from .presets import DOMAIN_SCALES, SOURCE_DOMAINS
+from .loader import checkpoint_stage, validate_bundle
+from .presets import SOURCE_DOMAINS, flow_scale
 
 DEFAULT_SCENE = Path(__file__).resolve().parents[1] / "examples" / "block" / "scene.json"
 
@@ -74,18 +74,21 @@ def write_prediction(output: Path, result, pixels_uv, metadata: dict) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--checkpoint", required=True, type=Path, help="Local WorldFlow inference bundle")
+    parser.add_argument("--checkpoint", required=True, type=Path, help="Local WorldFlow weights directory")
+    parser.add_argument("--stage", type=int, choices=(1, 2), help="Generator stage (default in a weights directory: 2)")
     parser.add_argument("--input", type=Path, default=DEFAULT_SCENE, help="Scene JSON (default: packaged blue block)")
     parser.add_argument("--output", type=Path, default=Path("outputs/block"), help="New result directory")
     parser.add_argument("--steps", type=int, default=40, help="Denoising steps (default: 40)")
-    parser.add_argument("--guidance", type=float, default=2.0, help="Text guidance scale (default: 2.0)")
+    parser.add_argument("--guidance", type=float, help="Text guidance scale (stage 1 default 1.0, stage 2 default 2.0)")
     parser.add_argument("--shift", type=float, default=5.0, help="Scheduler shift (default: 5.0)")
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
     try:
         if args.output.exists():
             raise FileExistsError(f"Choose a new output directory: {args.output}")
-        validate_bundle(args.checkpoint)
+        validate_bundle(args.checkpoint, args.stage)
+        stage = checkpoint_stage(args.checkpoint, args.stage)
+        guidance = args.guidance if args.guidance is not None else (1.0 if stage == 1 else 2.0)
         spec, rgb, xyz, uv = read_scene(args.input)
         from .pipeline import predict
 
@@ -97,26 +100,31 @@ def main() -> None:
             spec["instruction"],
             spec["source"],
             steps=args.steps,
-            guidance=args.guidance,
+            guidance=guidance,
             shift=args.shift,
             seed=args.seed,
+            stage=stage,
+            prompt_context=spec.get("prompt_context"),
         )
         source = spec["source"]
         metadata = {
             "instruction": spec["instruction"],
             "source": source,
-            "domain": SOURCE_DOMAINS[source],
-            "flow_scale": DOMAIN_SCALES[SOURCE_DOMAINS[source]],
+            "stage": stage,
+            "domain": SOURCE_DOMAINS[source] if stage == 2 else "global",
+            "flow_scale": flow_scale(source, stage),
             "units": "meters",
             "coordinate_frame": "initial_camera",
             "displacement_reference": "first_frame",
             "seed": args.seed,
             "steps": args.steps,
-            "guidance": args.guidance,
+            "guidance": guidance,
             "shift": args.shift,
             "fps": 16,
             "checkpoint": args.checkpoint.resolve().name,
         }
+        if stage == 2 and "prompt_context" in spec:
+            metadata["prompt_context"] = spec["prompt_context"]
         write_prediction(args.output, result, uv, metadata)
     except (FileNotFoundError, FileExistsError, ValueError) as exc:
         parser.exit(2, f"worldflow: {exc}\n")

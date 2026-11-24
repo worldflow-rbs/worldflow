@@ -1,1 +1,1 @@
-"""WorldFlow joint video and 3D motion inference."""
+"""Joint video and 3D motion prediction with WorldFlow."""

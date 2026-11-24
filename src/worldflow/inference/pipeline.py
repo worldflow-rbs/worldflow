@@ -11,7 +11,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-from .presets import DOMAIN_SCALES, SOURCE_DOMAINS, format_prompt
+from .presets import flow_scale, model_prompt
 
 HEIGHT, WIDTH = 288, 480
 FRAMES, POINTS = 49, 64
@@ -70,9 +70,12 @@ def predict(
     instruction: str,
     source: str,
     steps: int = 40,
-    guidance: float = 2.0,
+    guidance: float | None = None,
     shift: float = 5.0,
     seed: int = 42,
+    *,
+    stage: int | None = None,
+    prompt_context: dict | None = None,
 ) -> dict[str, np.ndarray]:
     """Predict 49 RGB frames and 48 displacements from the first-frame points.
 
@@ -80,18 +83,36 @@ def predict(
     pixels use the original image resolution. The returned selected_indices
     identify the 64 input rows used for predictions, including any duplicates.
     """
+    from .loader import load_model
+
+    return predict_with_model(
+        load_model(Path(checkpoint), stage=stage), rgb, points_xyz, pixels_uv, instruction, source,
+        steps=steps, guidance=guidance, shift=shift, seed=seed, prompt_context=prompt_context,
+    )
+
+
+def predict_with_model(
+    model, rgb: np.ndarray, points_xyz: np.ndarray, pixels_uv: np.ndarray, instruction: str, source: str,
+    *, stage: int | None = None, steps: int = 40, guidance: float | None = None, shift: float = 5.0, seed: int = 42,
+    prompt_context: dict | None = None,
+) -> dict[str, np.ndarray]:
+    """Predict one scene with an already loaded model, e.g. when evaluating a dataset."""
+    loaded_stage = getattr(model, "stage", None)
+    if stage is None:
+        stage = loaded_stage if loaded_stage is not None else 2
+    elif loaded_stage is not None and stage != loaded_stage:
+        raise ValueError(f"Loaded stage {loaded_stage} weights do not match requested stage {stage}")
     if not isinstance(steps, int) or steps < 1:
         raise ValueError("steps must be a positive integer")
     if not isinstance(seed, int) or not 0 <= seed < 2**32:
         raise ValueError("seed must be an integer in [0, 2**32)")
+    if guidance is None:
+        guidance = 1.0 if stage == 1 else 2.0
     if not math.isfinite(guidance) or not math.isfinite(shift) or shift <= 0:
         raise ValueError("guidance must be finite and shift must be finite and positive")
-    prompt = format_prompt(instruction, source)
+    prompt = model_prompt(instruction, source, stage=stage, prompt_context=prompt_context)
     xyz, flat_pixels, selected = _select_points(rgb, points_xyz, pixels_uv)
 
-    from .loader import load_model
-
-    model = load_model(Path(checkpoint))
     with torch.inference_mode():
         batch = _build_batch(model, rgb, xyz, flat_pixels, prompt)
         generated = model.generate_samples_from_batch(
@@ -100,7 +121,7 @@ def predict(
         flow = generated["objectflow"][0].detach().float().cpu().numpy()
         if flow.shape != (FRAMES - 1, POINTS, 3) or not np.isfinite(flow).all():
             raise RuntimeError("expected finite generated flow with shape (48, 64, 3)")
-        scale = DOMAIN_SCALES[SOURCE_DOMAINS[source]]
+        scale = flow_scale(source, stage)
         offsets = np.cumsum(flow * np.float32(scale), axis=0)
         if not np.isfinite(offsets).all():
             raise RuntimeError("non-finite metric displacements")

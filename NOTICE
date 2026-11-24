@@ -1,14 +1,15 @@
-WorldFlow inference distribution
+WorldFlow
 
-The WorldFlow inference code and the original synthetic block example use
+The WorldFlow code and the original synthetic block example use
 OpenMDW-1.1. See LICENSE for the agreement. The paper, existing project media,
 and separately distributed model weights retain their respective terms.
 
 NVIDIA Cosmos Framework
 Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES.
 https://github.com/NVIDIA/cosmos-framework
-The model, sequence packing, sampling, and video tokenizer components are
-adapted from Cosmos Framework for local, single-device WorldFlow inference.
+The model, sequence packing, training and sampling objectives, curriculum,
+data adapters, point sampling and video tokenizer include adaptations of
+Cosmos Framework.
 The Cosmos material is provided under OpenMDW-1.1.
 
 Hugging Face Transformers / Qwen

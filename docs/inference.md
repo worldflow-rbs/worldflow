@@ -22,6 +22,7 @@ Write a JSON manifest alongside your image and NumPy archive. Paths in the manif
 | `pixels_uv` | Numeric array, `(N, 2)` | Zero-based column and row in the original image. Row `i` corresponds to 3D point `i`. |
 | `instruction` | String | A plain-language description of the intended motion. |
 | `source` | String | A preset for the scene context and metric scale, listed below. |
+| `prompt_context` | Optional JSON object | Override the Stage 2 scene description with all four fields: `origin`, `actor`, `view` and `scene`. The source still selects the metric scale. |
 
 Save the points with `numpy.savez("queries.npz", points_xyz=points, pixels_uv=pixels)`. Supply at least one visible point and its pixel. The paper model uses 64 queries. The pipeline preserves all rows in order for exactly 64 inputs, uniformly selects rows when given more, and repeats rows when given fewer. It saves the chosen indices in the output.
 
@@ -45,13 +46,12 @@ The preset supplies the origin, actor, camera view and scene to the SPV1 prompt 
 ## Run and inspect a prediction
 
 ```bash
-WORLDFLOW_WEIGHTS=/path/to/worldflow-nano
-worldflow --checkpoint "$WORLDFLOW_WEIGHTS" \
+worldflow --checkpoint /path/to/worldflow-nano \
   --input my_scene/scene.json --output outputs/my_scene \
   --steps 40 --guidance 2.0 --shift 5.0 --seed 42
 ```
 
-The defaults use 40 denoising steps, text guidance 2.0, scheduler shift 5.0 and seed 42. For an installation check you can use `--steps 2` and a separate output directory. Use the default sampling settings to assess model predictions.
+The paper checkpoint defaults to 40 denoising steps, text guidance 2.0, scheduler shift 5.0 and seed 42. A Stage 1 bundle uses a plain instruction, a fixed metric scale and default guidance 1.0. For an installation check you can use `--steps 2` and a separate output directory.
 
 | File | Contents |
 | --- | --- |
@@ -77,26 +77,7 @@ The network predicts frame-to-frame motion. The pipeline applies the preset's me
 
 ## Checkpoint layout
 
-```text
-worldflow-nano/
-├── models/stage2/
-│   ├── model.safetensors.index.json
-│   └── model-00001-of-00030.safetensors   (plus the other shards)
-├── tokenizer/
-│   ├── tokenizer.json
-│   └── tokenizer_config.json              (plus the source tokenizer's vocabulary/template files)
-└── Wan2.2_VAE.pth
-```
-
-The original standalone layout with `model/` in place of `models/stage2/` is also supported. The package checks the generator tensor names and shapes and loads the tokenizer and VAE from the weights root.
-
-For a trusted original DCP, place the model shards and their `.metadata` at `imports/stage2/iter_000051100/model/` inside the weights directory. Include the tokenizer and VAE shown above, then run
-
-```bash
-worldflow-pack --checkpoint "$WORLDFLOW_WEIGHTS" --stage 2 --source import --iteration 51100
-```
-
-With only `--checkpoint`, the converter selects the latest complete numbered iteration. It writes the generator to `exports/stage2/` and activates it using a relative link at `models/stage2`. To relocate the converted weights, move `models/`, `exports/`, `tokenizer/` and the VAE together.
+Use the same [weights directory](weights.md) for generation and training. The loader reads `tokenizer/`, `Wan2.2_VAE.pth` and the selected generator inside it. It checks the generator's tensor names and shapes. Original standalone bundles with a top-level `model/` and no stage metadata load with the paper's Stage 2 settings.
 
 For the full setup and bundled demo command, see the [repository README](../README.md).
 
