@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "worldflow"
+version = "0.1.0"
+description = "Joint video and query-conditioned 3D motion prediction"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "LicenseRef-OpenMDW-1.1 AND Apache-2.0"
+license-files = ["LICENSE", "NOTICE", "LICENSES/*.txt"]
+dependencies = [
+    "torch==2.8.0",
+    "numpy>=1.26,<3",
+    "Pillow>=10",
+    "transformers==4.57.1",
+    "safetensors>=0.5,<1",
+    "av>=14,<17",
+    "diffusers==0.34.0",
+    "einops>=0.8,<1",
+]
+
+[project.optional-dependencies]
+training = ["numpy==1.26.4"]
+
+[project.scripts]
+worldflow = "worldflow.inference.cli:main"
+worldflow-pack = "worldflow.pack:main"
+worldflow-init = "worldflow.training.initialize:main"
+worldflow-prepare = "worldflow.data.prepare:main"
+worldflow-train = "worldflow.training.cli:main"
+worldflow-evaluate = "worldflow.evaluation.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["worldflow*"]
+
+[tool.setuptools.package-data]
+worldflow = ["examples/block/*.json", "examples/block/*.png", "examples/block/*.npz", "examples/block/*.md"]
+
+[tool.ruff]
+line-length = 120
